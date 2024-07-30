@@ -199,4 +199,114 @@
     1. jelly를 여러개 만들고 실행해도 잘되는것을 확인
     2. 정상
 
+### 젤리 키우기 게임 - 인터페이스 만들기 [V09]
+
+#### 캔버스 설정
+
+1. 캔버스를 만들고 더블클릭하면 크게나오는데 이유는 2. Render Mode가 Overlay 이기 때문이다. 3. mode를 카메라로 바꾼뒤 4. main camera를 드래그 드랍으로 넣어준다.
+2. Pixel Perfect 체크
+3. 사이즈가 안맞는다면
+   1. camera 내의 size가 3인지 확인
+4. Plane Distance
+   1. 카메라와의 z축 거리
+   2. (0을 주면 카메라와같이 z값이 -10인상태)
+   3. 우리는 값을 5를 준다.
+5. Order in layer 5
+6. Canvas내에 Canvas Scaler 속성
+   1. _이 값도 모바일 빌드까지 고려햇을때 매우 중요한 속성_
+   2. Scale with ScreenSize
+   3. 해상도 x 190,y 90
+   4. Reference Pixels Per Unit 16
+
+#### 버튼 만들기
+
+1. Canvas 밑에 버튼을 담을 Image 추가(Left Btn)
+   1. 이미지 소스 panel
+   2. 가로 32 세로 12
+   3. 앵커 좌하단에 배치
+   4. pos x 1 pos y 1
+   5.
+2. 그(Left Btn) 밑에 실제 버튼 추가 (Jelly Button)
+   1. 이미지 소스 Icon 2
+   2. set native size
+   3. 하위의 text 제거
+   4. 버튼 컴포넌트내에 Transition 속성을 Color Tint > Sprite Swap으로 변경
+   5. Navigation none으로 변경
+   6. 위치 pos x -7.5 pos y 5
+3. Jelly Button 을 복사(Plant Button) 8. 위치 pos x 7.5 9. icon3로 이미지 소스 변경
+4. Left Btn 객체내에 이미지 추가(Icon Shadow)
+   1. 이미지 소스 Icon Shadow
+   2. 첫번째 자식이 되도록 순서변경
+   3. pos x -7.5
+5. Icon Shadow를 복사
+   1. pos x 7.5
+6. 테스트
+   1. 정상
+7. Left Btn버튼 복사 (Right Btn)
+   1. 앵커 우하단
+   2. pos x -1 pos y 1 width 20
+   3. plant 부분 삭제
+   4. 나머지 두개 pos x 0
+   5. Jelly Button의 이미지 소스를 icon 5로 교체(Sell Button)
+      1. transition 내부 값들도 icon 5 over로 교체
+
+#### 텍스트 만들기
+
+1. Canvas 내에 이미지 추가(Left Text)
+   1. width 35 height 8
+   2. 앵커 좌상단
+   3. pos 2 pos y -3
+   4. 이미지소스 패널
+   5. color의 알파값 150
+   6. Left Text내에 image(Border)
+      1. 앵커 전체확장
+      2. 이미지 소스 panel border
+   7. Left Text내에 새로운 image(Icon Jellatin)
+      1. 이미지 소스 icon 0
+      2. set native size
+      3. pos x -1 pos y 1
+   8. Left Text내에 새로운 Text(Jelatin Text)
+      1. 폭, 높이 / 0,0
+      2. pos x -2
+      3. overflow,overflow
+      4. 우측정렬,중앙정렬
+      5. 앵커 우측에 붙이기
+      6. 폰트 도현체
+      7. 라벨 999,999,999
+   9. Jelatin Text 복사
+      1. 우상단에 배치
+      2. pos x -1 pos y -3
+      3. 이하 이미지 소스 icon 1 (Gold Icon)
+      4. Gold Text
+
+#### 재화 시스템
+
+1. 재화 시스템 변수는 Saved급으로 만들기
+2. Jelatine , Gold (Integer)
+3. Jelatin Text 내에 script machine 추가 (임베드)
+   1. Object 단위로 변수 추가 (Value / Integer)
+   2. Jelatine을 가져와서 Value에 값으로 연결
+   3. ![[Pasted image 20240730190611.png]]
+   4. Set Variable 노드의 입력의
+      1. 두번째에 넣지 않도록 주의 (네번째에 넣어야함)
+4. 계산 완료된 값을 사용하는 UI는 LateUpdate에서 처리
+5. Events > Lifecycle > lateupdate
+6. math에 보면 _Smooth Step_ 이라는 유닛이 있음
+   1. From 값을 To 까지 T의 속도로 부드럽게 변경
+   2. T의 값에 대해서
+      1. 0은 불변
+      2. 1은 즉각변화(애니메이션 x)
+      3. 현재는 0.5 사용
+7. format 유닛을 챙겨준다.
+   1. {0:n0}
+   2. 알아서 쉼표를찍어줌
+8. ![[Pasted image 20240730191635.png]]
+9. 오브젝트 변수(Value)가 Save변수를 따라가기 위해서 프레임마다 저장
+10. 전체 복사해준후 Gold Text에도 동일하게 적용
+    1. Object 변수 만드는것 잊지않기 (Value / Int)
+    2. 이번에는 참조하는 Saved값이 Jelatine이 아닌 Gold임에 맞춰서 값 변경
+11. 테스트 준비
+    1. Saved 변수의 초기값이 100 / 200이 되도록 설정후 저장 후 실행
+    2. SmoothStep이나 SmoothDamp로 숫자 애니메이션 구현
+
 ###
