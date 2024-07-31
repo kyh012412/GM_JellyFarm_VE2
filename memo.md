@@ -585,4 +585,154 @@
     2. 비싸게도 팔아본다.
     3. 정상
 
-###
+### 젤리 키우기 게임 - UI 창 구축하기 [V12]
+
+#### UI 구축하기
+
+1. 기존의 canvas 내에 Image 추가(Jelly Panel)
+   1. 이미지 소스 panel
+   2. width 40 height 50
+   3. 앵커 6시방향
+2. Jelly Panel 내의 Image 추가(Page Left Btn)
+   1. 이미지 소스 Panel left
+   2. set native size
+   3. 앵커 9시
+   4. pos x -8
+   5. Button 컴포넌트 추가
+      1. Color Tint를 sprite Swap으로 변경
+      2. Hightlighted
+      3. Pressed
+      4. Selected
+      5. 의 sprite 를 panel left over로 변경
+3. Page Left Btn 복사(Page Right Btn)
+   1. 대칭에 맞게 만들어주기
+   2. 이미지 right
+   3. 앵커
+   4. pos x 8
+   5. Sprite Swap 내부 속성값 변경
+   6. 만약
+      1. Target Graphic이 Page Right Btn으로 되어있는지 잘 확인한다.
+4. Jelly Panel 복사 (Plant Panel)
+   1. 자식 객체들 삭제
+   2. width 90
+5. Plant Panel를 한번 더 복사(Option Panel)
+   1. 소스이미지 none으로 변경
+   2. color black 알파값 180
+6. Option Panel 내부에 Image 추가()
+   1. 가로 80 세로 40
+   2. 이미지 소스 panel
+   3. 비활성화를 default로
+
+#### 창 애니메이션
+
+1. Jelly Panel과 Plant Panel은 y값을 -55로 내려줌
+2. Animation 내에 새로운 폴더(UI)
+   1. 애니메이터 (AcUI) 와
+   2. 2개의 애니메이션을 만들어줌(Show,Hide)
+3. AcUi 애니메이터 설정
+   1. AcUI 내에서 Empty state를 추가해주고 (Default state)
+   2. 2개의 animation을 넣어준다.
+   3. any state > show , any state > hide를 연결해준다.
+   4. 파라미터로 doShow와 doHide를 만들어준다.(trigger)
+   5. 각 transition 마다
+      1. transition 내에 condition 추가
+      2. transition duration 은 0 , Has Exit Time 도 uncheck
+4. 위 AcUI를 JellyPanel과 Plant Panel에 넣어줌
+5. Jelly Panel 객체를 누르고 animation 탭을 확인한다.
+6. Show state일때
+   1. add property > Rect Transform > Anchored Position +
+   2. 0프레임일때 y값이 55가 되게 해준다.
+   3. 10프레임일때 y값이 5가 되게 해준다.
+   4. 15프레임일때 y값이 2가 되게 해준다.
+   5. 59프레임일때도 y값이 2가되게 해준다.
+   6. 확인
+7. HIde state 일때
+   1. add property > Rect Transform > Anchored Position +
+   2. 0프레임일때 y값이 2가 되게 해준다.
+   3. 10프레임일때 y값이 5가 되게 해준다.
+   4. 59프레임일때도 위치를 30프레임 자리로 드래그해준다.
+   5. 59프레임일때 y값이 -55가 되게해준다.
+   6. 확인
+
+#### 창 열고 닫기
+
+1. Macros 폴더내에 새로운 script machine 생성 (슈퍼유닛은 아님) (ButtonPanel)3.
+2. Left Btn > Plant Button과 Jelly Button에 script machine 컴포넌트를 추가
+   1. 여기에 ButtonPanel을 연결
+3. 버튼과 연결된 상태를 알아야 하고, 버튼과 연결된 판넬도 알아야함
+4. Plant Button 내에 Object 급으로 변수를 추가
+   1. isClick(Boolean, false),
+   2. ShowSprite(Sprite, Icon 3 Over),
+   3. HideSprite(Sprite, Icon 3),
+   4. Panel(Game Object,Plant Panel)
+5. 현재 variables 라는 컴포넌트를 복사후 JellyButton에 붙여넣기(Paste component as new) 후 일부 값 수정
+   1. isClick(Boolean, false), (동일)
+   2. ShowSprite(Sprite, Icon 2 Over),
+   3. HideSprite(Sprite, Icon 2),
+   4. Panel(Game Object,Jelly Panel)
+6. Left Btn 내에 빈객체 추가(Option Button)
+   1. Script machine 추가(새로운 매크로 생성)(ButtonOption)(슈퍼유닛아님)
+7. ButtonPanel부터 구성
+   1. *On Button Click*이라는 유닛을 추가
+   2. 버튼클릭시 어떤 boolean값을 기준으로 toggle처럼 작동하게 만들예정
+   3. 상황에 따라서 맞는
+      1. 트리거를 작동시키고
+      2. Panel 조절
+      3. Sprite 변경
+      4. boolean값 토글
+   4. 을 해야한다.
+   5. esc를 눌렀을 때 처리 추가
+      1. On Button Input으로 감지 (유닛추가)
+      2. 위의 경우 Hide 쪽으로 연결
+   6. ![[Pasted image 20240731192914.png]]
+8. 위 모든것을 복사한후에 ButtonOption에서 붙여넣기
+   1. set trigger(animator)를 replace 하여 set active(game Object)로 변경
+   2. get variable Object Sprite 쪽은 삭제를해주고
+   3. set variable Object Sprite는 replace 하여 set Time Scale로 바꿔준다.
+   4. On Button Click 을 지워주고 (Button UI가 비존재)
+   5. Esc눌렀을때 열여야하므로 On Button 자리를 On Button Click(Cancel)로 대체
+9. 테스트
+   1. 시작후 Left Btn > Jelly Button을 눌러 미리 Script Graph를 열어준후
+   2. Game tab내에서 해당버튼을 클릭
+   3. Jelly Button과 Plant button은정상작동하지만
+   4. OptionPanel을 열때 다른 Panel이 같이 열리는 문제가 있는 상황
+   5. Jelly Button을 누른후 Plant Button을 누르면 Panel이 겹치는 문제도 있는 상황
+   6. UI를 열은 후에도 Jelly가 클릭되는 상황
+
+#### 로직 보완
+
+1. 이 게임에 일시 정지를 알리는 변수를 하나 추가
+   1. Scene급 변수 isLive boolean true
+2. Plant Button에 달린 script machine 내로 이동해서
+   1. Change State 이후에 Scene에 있는 isLive 값을 가져와서
+   2. Panel이 열렸는지 닫혔는지에 따라 알맞은 isLive의 값을 채워준다.
+   3. ![[Pasted image 20240731201449.png]]
+3. Set isLive 에 대한 유닛들만 복사해서 ButtonOption graph내에서도 동일하게 채워준다.
+   1. ![[Pasted image 20240731201504.png]]
+4. Jelly가 가지고 있는 state machine 으로 이동
+5. ??? > Touch로가는 3가지 transition이 있는데 각각마다 조건을 추가할 예정
+6. Idle > Touch부터
+   1. ![[Pasted image 20240731201845.png]]
+   2. Walk > Touch도 동일
+   3. Touch > Touch도 동일
+7. esc를 누를때 OptionPanel을 제외한 다른 Panel이 같이 보이는 문제 해결
+   1. ButtonPanel에서
+   2. ![[Pasted image 20240731202343.png]]
+8. 기존 Panel 이 열려 있으면 닫고나서 Panel을 열기위하여
+   1. Jelly Button으로가서 Object 단위 변수로 AnotherBtn을 추가
+      1. (Game Object) , Plant Button 으로 채우기)
+   2. Plant Button은 반대
+      1. Object 단위 변수로 AnotherBtn을 추가
+      2. (Game Object) , Jelly Button 으로 채우기)
+   3. 열렸는지 값(isLive)을 가져와서 확인
+      1. 열렸다면 다른 버튼을 가져와서 Hide trigger를보낸다.
+      2. 한쪽에서는 Hide trigger를 받아서 처리해준다.
+   4. ButtonPanel
+      1. ![[Pasted image 20240731203152.png]]
+9. ButtonOption graph로 넘어와서
+   1. ![[Pasted image 20240731203454.png]]
+   2. 다음처럼 변경
+      1. isLive가 true일때는 동일
+      2. false 일때는 연결없음
+10. 테스트
+    1. 정상
