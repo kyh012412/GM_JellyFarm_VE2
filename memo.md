@@ -367,6 +367,7 @@
 3. 볼트내에서 animator 컨트롤러를 사용하면 내부적 에러발생
 4. 게임메니져에서 함수를 만들어서 참고를 할 예정
 5. GameManager.cs내에서
+
    1. RuntimeAnimatorController\[] 자료형인 변수를 생성
    2. 코드
 
@@ -387,6 +388,7 @@
       1. edit > project settings > visual scripting > regerate nodes
          1. (거의 50초 소모..)
    4. inspector에서 LevelAc 초기화
+
 6. Jelly 객체 내에 객체변수로 Exp 추가 (float)
 7. Jelly의 Touch State 내에
    1. getJelatin을 연결한 직후에 로직추가
@@ -467,5 +469,120 @@
             1. x p0.20% 증가 (총 1.1)
             2. y p0.30% 감소 (총 0.9)
          3. 15프레임에 원위치
+
+### 젤리 키우기 게임 - 판매를 위한 젤리 드래그 & 드랍 [V11]
+
+#### 젤리 집어들기
+
+1. 카메라로부터 입력을 받기 위해서
+   1. Scene 변수에 Camera 추가작업
+   2. 이름 Camera , 타입 Camera , 값 드래그해서 넣어주기
+2. _UI에 대한 설명_
+   1. 스크린 좌표계
+      1. ![[Pasted image 20240731101609.png]]
+   2. 마우스는 스크린 좌표계에서 움직임
+   3. 월드 좌표계
+      1. ![[Pasted image 20240731101650.png]]
+   4. 스크린 좌표계인 마우스 위치를 월드 좌표계로 변경 필요
+3. 슈퍼 유닛 생성(GetMousePoint)
+   1. input output 필요
+   2. 목적이 마우스의 좌표를 스크린 월드 좌표계로 바꿔서 출력해야하기때문에
+      1. Vector3도 out쪽에 필요
+   3. 카메라에 접근하기위해 Scene 변수에서 가져온다.
+   4. get mouse pos를 검색
+      1. input 쪽에서의 유닛을 선택
+   5. Screen to world point 유닛 추가
+      1. 매개변수에 eye가 없는 것을 선택
+   6. z축의 값도 y축의 값과 같게 재조정후 export
+   7. Vector3 set z의 graph inspector에 보면 Chainalbe 이라는 옵션이 있음 이것을 체크하면
+      1. 반환형으로 vector 3의 값을 얻을 수 있음
+   8. ![[Pasted image 20240731102827.png]]
+4. Jelly의 state flow 내에 script state를 새로 추가해줌
+   1. 테스트를 위해 현재는 업데이트만 사용
+   2. ![[Pasted image 20240731103216.png]]
+   3. Pick을 오른클릭하여 toggle start를 해준다.
+   4. Idle은 반대로 잠시 꺼준다.
+      1. ![[Pasted image 20240731103311.png]]
+   5. 토글들을 원위치
+      1. ![[Pasted image 20240731103424.png]]
+   6. 필요할때만 위처럼 동작하게 구현 계획
+
+#### 드래그 상태
+
+1. jelly touch 내로 들어가서
+2. seq를 검색하여 sequence 유닛을추가
+   1. 컨트롤 플로우를 2개로 나누는 역할
+3. Graph 변수로 PickTime을 추가한다.
+   1. 젤리를 누르거나 드래그하는 시간을 저장하는 그래프 변수 추가
+   2. 초기값도 float 0으로 초기화
+4. 위 PickTime을 부르는 조건은
+   1. Event > input > on mouse drag로 (유닛추가)
+5. control > select on flow 라는 유닛을 추가
+   1. 여러개의 컨트롤 플로우를 받을 수 잇음
+6. 참조
+   1. ![[Pasted image 20240731104840.png]]
+   2. ![[Pasted image 20240731104846.png]]
+7. touch > pick 으로가는 트랜지션을 만들고 event 내로 이동
+   1. UnityEvent Pick으로연결
+8. 테스트
+   1. 정상
+   2. 젤리를 놓는 로직 필요
+      1. 만약에 젤리를 경계 밖에 드랍할경우 예외처리필요
+
+#### 원위치 돌려놓기
+
+1. Jelly Pick state 내에서
+   1. OnExitState 때 예외처리 로직
+2. 로직
+   1. ![[Pasted image 20240731105813.png]]
+   2. 다만 나갔을때 발생하는 이벤트인데
+   3. 나갔을때를 감지하는 로직 또는 나가게 해주는 로직이 필요
+3. Pick > Idle 로 transition을 추가해주고 event로 이동
+   1. On Mouse Up 유닛을 추가하여 연결
+      1. ![[Pasted image 20240731110045.png]]
+4. 테스트
+   1. 정상
+   2. 이제 젤리를 Sell Box 쪽에 드랍햇을 때를 구현하기
+
+#### 젤리 가격
+
+1. GameManager 내에 정의 해두기
+2. `public int[] jellyGoldList;` 를 추가해준후 unity inspector 창에서 정의
+3. scripts 가 변경되었으므로 regenrate nodes를해준다.
+
+#### 젤리 판매
+
+1. 판매 (가능) 여부를 알 수 있도록 플로우 매크로(script machine)을 추가 (ButtonSell)
+2. 마우스가 올라왔을때를 UnityEvent Enter로 처리 (나갔을 때는 Exit로 처리)
+3. Scene 변수로 isSell을 추가해준다. (Boolean false)
+4. ![[Pasted image 20240731112340.png]]
+5. Right Btn > Sell Button에 Script machine 추가 (ButtonSell)
+6. 위 graph는 이벤트가 발생햇을때의 행동이고 Trigger가 필요하다.
+7. Sell Button 객체 내에 Event Trigger 컴포넌트를 추가해준다.
+   1. UI의 다양한 이벤트를 연결해주는 컴포넌트
+   2. add new event type을 눌러주고
+   3. Function 에서는 Script.Machine 내의 TriggerUnityEvent를 만들고
+   4. 매개변수로 String을 적어준다.
+   5. 다음처럼 구성
+      1. ![[Pasted image 20240731112846.png]]
+8. 가격을 측정하여 판매를 담당하는 슈퍼유닛 생성(GetGold)
+   1. input output 생성
+   2. 가격을 가져오기위해 manager를 가져와준다.
+   3. 가격 list를 가져와주고
+   4. list에서 get item을 한다. (get list item)
+   5. level을 곱해주고
+   6. 기존 gold에 더해서
+   7. Minimum 유닛을 통하여 (최대값 제어)
+   8. set gold를해준다.
+   9. ![[Pasted image 20240731114602.png]]
+9. 위 슈퍼유닛은 Pick > Idle 에서 마우스를 손 땟을 때
+   1. isSell 이 True인지 확인 (boolean, if)
+   2. 판매중이면 getgold후 destroy
+   3. 판매중이아니면 다음 State으로 transition
+   4. ![[Pasted image 20240731115241.png]]
+10. 테스트
+    1. 젤리를 싸게 팔아보고
+    2. 비싸게도 팔아본다.
+    3. 정상
 
 ###
