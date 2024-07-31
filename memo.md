@@ -309,4 +309,163 @@
     1. Saved 변수의 초기값이 100 / 200이 되도록 설정후 저장 후 실행
     2. SmoothStep이나 SmoothDamp로 숫자 애니메이션 구현
 
+### 젤리 키우기 게임 - 👆클리커 기능 구현 [V10]
+
+#### 클리커 시스템
+
+1. Jelly state graph 내에서 새로운 state script 생성
+   1. 타이틀 Touch
+   2. 설명 Clicker system
+2. 터치 시스템을 위해서 Jelly 내에 Collider 를 추가해준다.
+   1. circle collider 2d (is trigger 체크)
+   2. 물리효과를 줄것은 아니기에 rigidbody 2d는 필요 없음
+3. Idle > Touch 와 Walk > Touch에 해당하는 Transition을 만들어준다.
+4. 이동하는 이벤트로 이동후
+   1. Event > Input > OnMouseDown 유닛 추가
+      1. 콜라이더를 가지고잇는 객체를 눌렀다
+   2. ![[Pasted image 20240730193416.png]]
+   3. 모든 Touch 로 향하는 transition에 동일하게 적용해준다.
+   4. Touch에서도 self transition을 만들어주고 동일하게 구현
+   5. ![[Pasted image 20240730193558.png]]
+5. Touch state 내부구현
+   1. animator 내에서 Touch state가 있고 그쪽을 활성화 하기위해서는 doTouch Trigger가 필요하다.
+   2. 그리고 원하는 행위후
+   3. state 돌려놓기 위한 트리거 발생
+   4. ![[Pasted image 20240730214932.png]]
+6. 다시 Touch > Walk transition를 생성해주고
+   1. 내부에 UnityEvent Walk를 연결해준다.
+   2. ![[Pasted image 20240730215739.png]]
+7. 테스트
+   1. 정상
+
+#### 재화 증가
+
+1. 별개의 매크로(슈퍼유닛) 제작 예정
+   1. script machine 생성(GetJelatin)
+   2. input output 추가
+   3. 진행 전 확인 사항
+      1. 젤리 수 확인 sprites > ingame폴더 내부를 보면 jelly가 12종이 준비되어있음 (0~11)
+      2. Jelly의 객체이름이 정확히 Jelly여야함
+   4. Jelly 내에 Object 변수를추가해준다 .(ID / Int)
+   5. Jelly 내에 Object 변수를추가해준다 .(Level / Int / 1)
+2. 다시 슈퍼 유닛인 GetJelatin 에서 작업해준다. 2. 젤라틴을 증가시키는 로직 1. ![[Pasted image 20240730222318.png]] 3. 저장하는 로직 1. ![[Pasted image 20240730222329.png]]
+3. Jelly 의 Touch state 내에서 위로직을 연결해준다.
+   1. 로그자리에 연결
+      1. ![[Pasted image 20240730222543.png]]
+4. 테스트
+   1. 테스트 진행 중 젤리를 복사해서
+      1. Jelly sprite 3
+      2. ID 3
+      3. 클릭시 4젤라틴이 증가되는지 확인
+         1. 정상!
+5. 레벨 올라가는 로직이 없는상태
+
+#### 젤리 성장
+
+1. Animations 폴더에보면 Ac1,2,3 이 있는데 이 이유가 level 1,2,3 에 해당하는 것이다. (max level은 3)
+2. 기존 Jelly의 animator 컨트롤러는 Ac1로 교체
+3. 볼트내에서 animator 컨트롤러를 사용하면 내부적 에러발생
+4. 게임메니져에서 함수를 만들어서 참고를 할 예정
+5. GameManager.cs내에서
+   1. RuntimeAnimatorController\[] 자료형인 변수를 생성
+   2. 코드
+
+      ```cs
+      public class GameManager : MonoBehaviour
+      {
+          public Vector3[] pointList;
+
+          public RuntimeAnimatorController[] LevelAc;
+
+          public void ChangeAc(Animator anim,int level){
+              anim.runtimeAnimatorController = LevelAc[level-1];
+          }
+      }
+      ```
+
+   3. 스크립트가 변경되면 Update를해준다.
+      1. edit > project settings > visual scripting > regerate nodes
+         1. (거의 50초 소모..)
+   4. inspector에서 LevelAc 초기화
+6. Jelly 객체 내에 객체변수로 Exp 추가 (float)
+7. Jelly의 Touch State 내에
+   1. getJelatin을 연결한 직후에 로직추가
+   2. ![[Pasted image 20240730225336.png]]
+   3. 슈퍼 유닛 추가예정
+      1. 기능
+         1. 레벨업
+         2. 자동 exp 증가
+8. 슈퍼 유닛 추가(SetExp)
+   1. 기능
+      1. 현재 최고 레벨인지 여부체크
+      2. 경험치 증가
+      3. 레벨업 이벤트가 필요한지 체크
+      4.
+   2. script machine
+   3. input output 추가
+   4. 레벨 체크부터
+   5. equal 유닛 가져와서 inspector 에서 Numeric 체크
+   6. 레벨업 요구 경험치는 현재레벨에 비례로 설정
+   7. 레벨업 후 올바른 animation 설정을 위해서
+      1. GameManager 내에 만들어둔 ChangeAc 사용
+   8. 현재 script machine 이 들고있는 animator를 넣어줘야하기 때문에
+      1. self 라는 유닛을 사용
+      2. 디테일
+         1. ![[Pasted image 20240731080028.png]]
+         2. 빨간선 처럼 연결하면 A+1이 2번되므로 문제가 발생
+   9. SetExp 전체 Flow
+      1. ![[Pasted image 20240731080518.png]]
+      2. ![[Pasted image 20240731080527.png]]
+      3. ![[Pasted image 20240731080537.png]]
+      4. ![[Pasted image 20240731080601.png]]
+9. 위 슈퍼유닛을 jelly에 적용
+   1. 모든 각각의 state마다 update에 SetExp (매크로)를 적용해준다.
+   2. walk state경우 translate 직후
+10. 테스트
+    1. 정상
+
+#### 그래프 정리
+
+1. 그룹 정리 연습
+2. Jelly Idle state 내에서
+   1. ![[Pasted image 20240731084043.png]]
+3. Jelly Walk state 내에서
+   1. ![[Pasted image 20240731084808.png]]
+   2. ![[Pasted image 20240731084818.png]]
+   3. ![[Pasted image 20240731084828.png]]
+4. Jelly Touch State 내에서
+   1. ![[Pasted image 20240731085534.png]]
+   2. ![[Pasted image 20240731085543.png]]
+   3. ![[Pasted image 20240731085553.png]]
+5. Transition Event 내에서도 정리
+   1. Idle > Walk
+      1. ![[Pasted image 20240731091932.png]]
+   2. Touch > Walk
+      1. ![[Pasted image 20240731091958.png]]
+   3. Walk > Walk
+      1. ![[Pasted image 20240731092013.png]]
+      2. ![[Pasted image 20240731092030.png]]
+6. 테스트
+   1. 정상
+7. _원리파악_
+   1. 기존의 animation 방식은 완성된 sprite들의 frame 나열이였다면
+   2. 이방식은 같은 sprite 하나를 가지고 Scale만을 조절하여 animate를 만들어냈다.
+   3. idle1 은 scale이 0.5이고 idle2는 0.75 idle 3은 1의 값을 가진다.
+      1. idle 기준
+         1. 1초에 x가 p0.05% 증가
+         2. y가 p0.05% 감소
+         3. 이후 1초에 걸쳐서 원위치
+      2. Walk기준
+         1. 15프레임에 x가 p0.15% 증가
+         2. y가 p0.15% 감소
+         3. 이후 15프레임에 원위치
+      3. Touch 기준
+         1. 2프레임에
+            1. x p0.10% 감소
+            2. y p0.20% 증가
+         2. 10프레임에
+            1. x p0.20% 증가 (총 1.1)
+            2. y p0.30% 감소 (총 0.9)
+         3. 15프레임에 원위치
+
 ###
