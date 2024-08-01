@@ -932,3 +932,156 @@ public int[] jellyJelatinList; // 언락을 위한 젤라틴요구량
    3. 테스트
 4. Page Left Btn과 Page Right Btn 의 Navigation 값을 None으로 변경해준다.
 5. 하이라키창 맨위에 검색하는 부분에을 보면 type으로 검색이 가능하다.
+
+### 젤리 키우기 게임 - 구매 시스템 만들기 [V14]
+
+#### 젤리 프리펩
+
+1. jelly 밑의 shadow에 반영할 script machine을 생성
+2. 그림자는 부모객체의 젤리의 ID에 따라서 달라져야 하므로
+3. 부모 객체에 접근하기 위한 (transform)getParent 유닛
+4. Switch 문법같은 효과를 내기위해서
+   1. Select on Integer 유닛을 추가
+   2. inspector에서 원하는 case 추가 가능
+   3. 그림자는 젤리의 자식 객체이기때문에 set localposition을 사용
+   4. ![[Pasted image 20240801121046.png]]
+5. 프리펩 등록
+   1. Assets내에 Prefabs 폴더를 만들어준다.
+   2. 하이라키의 Jelly를 Prefabs 폴더내로 드래그 해준다.
+   3. 등록 후 등록된 prefab이 position을 0,0,0인지 확인 후 초기화
+
+#### 구매 시스템
+
+1. Jell Panel > Unlock Group > Buy Button에 OnClick을 추가해준다.
+   1. 객체 Jelly Panel
+   2. Script Machin.TriggerUnityEvent
+   3. string Buy
+2. Jell Panel의 script machine 부분으로 와서
+   1. Unlock 에 해당하는 두개의 그룹 복사
+   2. 붙여넣기 후 값을 적절히 수정
+3. 수정 내용
+   1. Group name Unlock > Buy
+   2. Check Jelatin > Check Gold
+   3. list 를 Gold list로 변경
+   4. ![[Pasted image 20240801125910.png]]
+4. Buy : Success 쪽 추가 구현
+   1. ![[Pasted image 20240801125825.png]]
+   2. 젤리 생성을 위한 Instantiate 유닛 추가
+      1. 오버로드 된것중 original position ratation을 매개 변수로 받는 것을 선택
+      2. original에는 prefab인 jelly를 넣어준다.
+      3. position은 set point(매크로)
+      4. rotation은 identity를 검색하여서 기본값
+   3. ![[Pasted image 20240801130606.png]]
+5. 테스트
+   1. 정상
+   2. 문제점
+      1. 다음 단계의 젤리를 생성시
+      2. 최초등급의 젤리(녹색)만 나타남 +
+      3. 종종 빨긴색에러로 GUI출력보다더많은 요청이있다라는 에러가 발생
+
+#### 젤리 생성
+
+1. Jelly.cs를 만들어준다.
+
+   ```cs
+   public class Jelly
+   {
+       public int ID;
+       public int Level;
+       public float Exp;
+
+       public Jelly(int ID,int Level,float Exp){
+           this.ID = ID;
+           this.Level = Level;
+           this.Exp = Exp;
+       }
+   }
+   ```
+
+1. Edit > Project Settings > Visual Scripting에서 Type Option 추가하고 아래 Regenerate Node누르기
+1. ![[Pasted image 20240801131442.png]]
+1. Jelly Panel의 Bu: Success 그룹으로 이동
+   1. Jelly Create 유닛을 추가
+   2. ![[Pasted image 20240801131902.png]]
+   3. 이상태에서 중간로직인 슈퍼유닛 만들기(MakeJelly)
+1. MakeJelly
+   1. input output 필요
+   2. 지역 변수를 쓸때에는 flow 변수로 미리 저장
+   3. ![[Pasted image 20240801134307.png]]
+   4. ![[Pasted image 20240801134319.png]]
+   5. Set 그룹들의 컬러 Color 51149A
+1. 다시 Jelly Panel로 가서 Make Jelly를 연결
+   1. ![[Pasted image 20240801140007.png]]
+   2. 레벨 초기값은 1로 정의했던것 주의
+1. 테스트
+   1. 플레이 후 saved의 값을 조정해서 잘되는지 테스트
+   2. 정상
+      1. 껏다키면 일부정보만 남고 젤리들이 초기화되는 문제
+
+#### 젤리 관리
+
+1. GameManager 객체 내에 GameManager(매크로)를 만들어준다.
+   1. CustomEvent : 이름과 매개변수가 자유로운 볼트(비쥬얼 스크립트)만의 이벤트
+      1. 유닛을 하나 추가해준다.
+   2. Object 급으로 JellyList를 추가해준다. (Aot List)
+      1. ![[Pasted image 20240801140750.png]]
+   3. 리스트에 아이템을 넣을때 필요한것
+      1. Collection > list > add list item
+   4. 리스트에 아이템을 삭제할때는
+      1. remove list item
+   5. ![[Pasted image 20240801141138.png]]
+2. 다시 MakeJelly 슈퍼유닛으로 이동
+   1. MakeJelly내의 모든 세팅이 끝난후 Add trigger 작동
+   2. ![[Pasted image 20240801141951.png]]
+3. Jelly state machine으로 가서
+   1. Pick > Idle로 넘어가는 trigger event 내에서
+   2. Sell 그룹중
+      1. trigger custom event sell 필요
+      2. ![[Pasted image 20240801142554.png]]
+4. 테스트
+   1. 정상
+
+#### 젤리 저장
+
+1. Saved 급에 JellyList변수를 만들어준다.
+2. 게임매니저에서의 JellyList는 GameObject 자료형이지만
+3. Saved에서의 JellyList는 Jelly 타입으로 넣을 예정
+4. 슈퍼 유닛 만들기(SaveJelly)
+   1. input output 필요
+   2. 일단 Saved에 잇는 jellylist를 가져옴
+   3. Collection 내에 clear list가 있음
+   4. control 내에서 for each loop가 있음
+   5. ![[Pasted image 20240801194936.png]]
+   6. ![[Pasted image 20240801194947.png]]
+5. GameManager graph로 온다.
+   1. 게임매니저에서 리스트 추가, 삭제시 젤리저장 슈퍼유닛 사용
+   2. ![[Pasted image 20240801200148.png]]
+6. 테스트
+   1. ![[Pasted image 20240801200528.png]]
+   2. Saved 내에 저장된 것이 보이지만 사용자 지정 자료형의 값은 보이지 않는다.
+7. GameManager on Start에서 load기능을 구현
+8. ![[Pasted image 20240801200945.png]]
+9. 위코드를 실행하면 에러가 발생하는데
+   1. forEach문 작동중에 list에 변형이되면 에러가 발생한다.
+10. Scene급의 isStart 변수를만들어주고 (boolean false)
+    1. 이 값을 활용한다.
+    2. ![[Pasted image 20240801202130.png]]
+
+#### 자동 재화 획득
+
+1. Trigger Unity Event 유닛을 사용
+   1. Auto
+   2. 사용 위치는 GameManger On start 캐스팅중에 트리거 발동
+2. 이하 UnityEvent Auto유닛에 graph inspector 창에서 coroutine을 체크해준다.
+3. 무반 반복을 위해 While 유닛 추가
+4. Wait for second 유닛 추가
+5. get jellatin의 input에 매개변수가 필요하게됨 Data input을 추가해줌
+   1. ![[Pasted image 20240801203618.png]]
+6. 전에 GetJelatin을 사용한 부분도 같이 수정이 필요함
+   1. Jelly 의 Touch State내에서 this가 필요
+   2. ![[Pasted image 20240801203728.png]]
+7. SaveVariable : Saved 변수를 PlayerPrefs에 반영
+   1. ![[Pasted image 20240801204523.png]]
+8. 테스트
+
+###
