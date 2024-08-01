@@ -736,3 +736,199 @@
       2. false 일때는 연결없음
 10. 테스트
     1. 정상
+
+### 젤리 키우기 게임 - 🔓해금 시스템 만들기 [V13]
+
+#### 젤리 데이터
+
+1. GameManager.cs 에 ~를 추가
+
+```cs
+public Sprite[] jellySpriteList;
+public string[] jellyNameList; // ID 에 해당하는 고유이름
+public int[] jellyJelatinList; // 언락을 위한 젤라틴요구량
+```
+
+1. Unity inspector로 와서
+   1. 위의 3가지 리스트 값 채워주기
+   2. regenerate nodes?
+
+#### UI 페이지
+
+1. Plant Panel은 잠시 비활성화
+1. Jelly Panel 내에 Image 추가(Icon)
+   1. set native size
+   2. pos y 12
+1. Jelly Panel 내에 Text 추가(Name Text)
+   1. 가로 세로 0 0
+   2. Overflow overflow
+   3. 중앙 정렬, 중앙 정렬
+   4. font size 7
+   5. 도현체 폰트
+   6. 라벨 슬라임
+   7. pos y -3
+1. Name Text 복사(Sub Name Text)
+   1. pos y -9
+   2. 라벨 젤리 // (고정)
+   3. font size 6
+   4. color 949a9f
+1. Jelly Panel 내에 버튼 추가(Buy Button)
+   1. 앵커 아래쪽에 가득채우기
+   2. 높이 10
+   3. left 2 right 2 pos y 3
+   4. 소스 이미지 판넬
+1. Buy Button내의 text
+   1. 앵커 우상단
+   2. pos x -2 pos y -2
+   3. 높이와 너비는 0 0
+   4. Overflow Overflow
+   5. 우측 정렬, 상단 정렬
+   6. 도현체
+   7. 라벨 999,999
+1. Buy Button내의 이미지 추가
+   1. 이미지 소스 icon 1
+   2. set native size
+   3. 앵커 좌상단
+   4. pos x 가 2 pos y 가 -1.5
+1. 완성된 Jelly Panel은 구매가 가능한 상태
+1. Jelly Panel내에 빈객체 추가 (Unlock Group)
+   1. 앵커 전체(최대)크기
+   2. 이 객체 내부로 Icon,Name Text, Sub Name Text, Buy Button을 넣어준다.
+   3. 위치를 Jelly Panel 이하의 첫번째 자식위치로 옴겨주고
+1. Unlock Group을 복사 (Lock Group)
+1. UnlockGroup은 잠시 비활성화
+1. LockGroup
+   1. 컴포넌트추가 Image(객체 추가가 아닌 컴포넌트 추가)
+   2. 이미지 소스 Panel
+   3. Color 7b7d80
+1. LockGroup내의
+   1. Icon의 Image 컴포넌트 내의 Color black
+   2. Text Name과 Sub Text Name 삭제
+   3. Icon 복사(Lock Image)
+1. Lock Image
+   1. 이미지 소스 Lock
+   2. set native size
+   3. pos y -3
+   4. color 616366
+1. 해금에 필요한 조건은 골드가 아닌 젤라틴
+1. Buy Button -> (Unlock Button)내의
+   1. Image를 icon 0으로 변경
+1. 해금이 안된 상태와 된 상태를 구분할 수 잇도록 UI 구축
+1. UnlockGroup을 항상 켜두고 Lock Group을 활성화 비활성화로 제어 +
+   1. UnlockGroup이 Lock Group보다 (하이라키상에서) 위에 있어야함
+1. Jelly Panel 내에서 빈객체 추가(Lock Group)
+   1. 2번째상에 , Unlock 바로 아래에 위치 , 기존 Lock group 보다 위쪽에 위치
+   2. 앵커최대
+   3. 방금 만든 Lock Group내로 기존 Lock Group을 넣어준다.
+1. Jelly Panel에서 Text 추가(Page Text)
+   1. 앵커 우상단
+   2. pos x -2, y -2
+   3. 너비 높이 0 0
+   4. 라벨 #01
+   5. 폰트 도현체
+   6. 우측정렬, 상단정렬
+   7. overflow,overflow
+   8. 폰트크기 5
+1. 현재 배치
+   1. ![[Pasted image 20240801090733.png]]
+
+#### 페이지 이동
+
+1. Jelly Panel에 쓸 script machine 생성(슈퍼유닛아님) (JellyPanel)
+   1. 연결까지
+2. Jelly Panel 내에 Page Left Btn에 Onclick추가
+   1. 객체 Jelly Panel
+   2. 함수 script machine > trigger unity event
+   3. Page Down
+3. Page Right Btn도 대칭되게 끔 동일
+4. Script machine으로 돌아와서
+5. UnityEvent유닛부터 시작
+6. Page Up Down에 해당하는 변수를 추가
+   1. Scene급에서 Page 생성(int)
+7. UnityEvent가 발생했을때
+   1. 값을 가져와서
+   2. 조건을 검사한 후
+   3. 값을 재 세팅해준다.
+   4. ![[Pasted image 20240801093252.png]]
+
+#### 페이지 연동
+
+1. 새로운 기법인 _BroadCasting_ 기법 사용 예정
+2. 방금 만든 곳 뒤에 Trigger Custom Event 라는 유닛 추가
+   1. 이벤트 이름은 Change
+3. Jelly Panel > UnlockGroup > Icon 으로 이동(하이라키)
+   1. 이 객체에 임베드 script machine을 추가
+   2. Custom Event 유닛추가
+   3. Jelly Panel 객체를 Script Graph 내로 드래그
+   4. Manager, jelly sprtie list 필요, index 로 page 사용 (get list item 필요)
+   5. ![[Pasted image 20240801095009.png]]
+   6. 전체를 복사
+4. Jelly Panel > Unlcok Group > Name Text로 이동
+   1. 동일하게 임베드 script machine을 넣어주고
+   2. 기존의 것 삭제 그리고 붙여넣기
+   3. 리스트를 replace로 jelly name list를 가져오게 한다.
+   4. set sprite를 set text로 replace한다.
+   5. ![[Pasted image 20240801095333.png]]
+5. Jelly Panel > Unlcok Group > Button > Text 로 이동
+   1. list는 get jelly gold list
+   2. {0:n0}을 써서 세자리마다 쉼표필요
+   3. ![[Pasted image 20240801095702.png]]
+   4.
+6. Jelly Panel > Page Text 로 이동
+   1. page에 1을 더하고(1부터 시작)
+   2. format 내에서는 #{0:00}(항상 두자리)을 사용
+   3. ![[Pasted image 20240801100018.png]]
+7. 테스트
+   1. 로직은 정상
+   2. sprite 별로 이미지 크기가 달라서 조금 깨질 수 있음 => 처리 계획
+8. Jelly Panel > UnlockGroup > Icon 의 임베드된 script machine으로 와서
+   1. 끝부분 이후 set native size 유닛을 추가 후 연결
+   2. 이미지 크기 문제는 해결
+9. 젤리 판넬을 처음 열었을 때 정보를 불러오지 않아서 999,999가 찍히는 문제
+   1. Jelly Panel로 가서
+   2. Event > lifecyle > start 유닛을 추가후 이후 Cuttom 이벤트로 연결
+   3. ![[Pasted image 20240801100702.png]]
+10. 해금에 관한 정보들을 담고 있는 변수들이 없어서
+11. Saved 급에 JellyUnlockList를 만들어 줌
+    1. 자료형에 list를 쓸수가 없음 (유니티가 막음)
+    2. 컴파일 빌드가 안됨
+    3. 그래서 aot list를 사용함
+       1. aot : 목표 플랫폼과 상관없이 중간언어 형태로 배포하는 방식
+    4. ![[Pasted image 20240801101238.png]]
+    5. 12개가 필요
+12. Jelly Panel > Lock Group 에 Embed script machine 을 추가
+    1. Lock Group내에 비활성화된 Lock Group을 script machine 내로 드래그 후
+    2. set active를검색해서 넣는다.
+    3. boolean 값을 반대로 하기위해서는 negate라는 유닛을사용한다.
+    4. ![[Pasted image 20240801101814.png]]
+13. Unlock Group 내에 Icon scipt machine 내용을복사해서
+    1. lock group 내에 icon script machine에 붙여넣기
+    2. 이 곳은 내용이 정확히 동일해서 수정 불필요
+14. Unlock Group > Button > Text의 scipt machine 내용을복사해서
+    1. lock group > Button > Text에 script machine에 붙여넣기
+    2. list 는 get jelly jelatin list로 변경, 나머지는 동일
+    3. 같은 곳에 on enable 유닛을 추가
+       1. 비활성화된 상태엔 이벤트를 들을 수 없으므로
+    4. ![[Pasted image 20240801102535.png]]
+15. 위의 Icon도 on enabled 추가
+    1. ![[Pasted image 20240801102832.png]]
+16. 테스트
+
+#### 해금 시스템
+
+1. Jelly Panel > Lock Group >Lock Group > (Unlock) Button 의 Onclick 추가
+   1. 객체 Jelly Panel
+   2. ScriptMachine.TriggerUnityEvent
+   3. Unlock
+   4. ![[Pasted image 20240801104332.png]]
+2. jelly panel의 script machine으로 돌아와서
+   1. 기존 재화와 가격의 값을 가져와서 조건 검사
+   2. 조건 성공시 차감 갱신로직과 boolean값 바꿔준후 UI 갱신필요
+   3. ![[Pasted image 20240801104427.png]]
+   4. ![[Pasted image 20240801104445.png]]
+3. 테스트 전
+   1. saved 급의 Intial을 100 200 unchecked로 하고
+   2. saved쪽에 저장된 값들을 삭제?
+   3. 테스트
+4. Page Left Btn과 Page Right Btn 의 Navigation 값을 None으로 변경해준다.
+5. 하이라키창 맨위에 검색하는 부분에을 보면 type으로 검색이 가능하다.

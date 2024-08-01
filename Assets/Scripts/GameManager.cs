@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // 추천 받은 값 100 200 500 1000 1500 2000 3000 5000 7500 10000 25000 50000
-    public int[] jellyGoldList;
-    public Vector3[] pointList;
+    public Sprite[] jellySpriteList;
+    public string[] jellyNameList;
 
+    // 추천 받은 값 
+    public int[] jellyJelatinList; // 언락을 위한 젤라틴요구량
+
+    // 추천 받은 값 100 200 500 1000 1500 2000 3000 5000 7500 10000 25000 50000
+    public int[] jellyGoldList; // 젤리를 팔았을때 얻는 골드량
+    public Vector3[] pointList; // 젤리가 외곽일경우 다시 보낼 장소의 좌표
     public RuntimeAnimatorController[] LevelAc;
 
     public void ChangeAc(Animator anim,int level){
