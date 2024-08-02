@@ -1084,4 +1084,134 @@ public int[] jellyJelatinList; // 언락을 위한 젤라틴요구량
    1. ![[Pasted image 20240801204523.png]]
 8. 테스트
 
+### 젤리 키우기 게임 - 업그레이드 시스템 구현 [V15]
+
+#### UI 구축하기
+
+https://www.youtube.com/watch?v=bmcBdxWdTbs&list=PLO-mt5Iu5TeZA0y889ZMi9wJafthif03i&index=9
+
+1. Plant Panel 내에서 빈객체 추가(Num Group)
+   1. 앵커 전체크기
+   2. Right 45
+2. Num Group 내에 Image 추가
+   1. 이미지 소스 icon 6
+   2. set native size
+   3. pos y 12
+3. Num Group 내에 Text 추가
+   1. 가로 세로 0 0
+   2. overflow overflow
+   3. 중앙 정렬,중앙 정렬
+   4. 폰트 크기 7
+   5. 도현체
+   6. 라벨 젤리 아파트
+4. Text 복사(Sub Text)
+   1. pos y -6
+   2. 폰트 크기 5
+   3. 색상 8f9396
+   4. 라벨 젤리 수용량 2
+5. Jelly Panel > Unlcok Group > Buy Button을 복사하여 Num Group 아래로 가져온다.
+   1. 앵커를 아래쪽 꽉찬것으로 변경
+   2. left 2 right 2 pos y 3
+6. Num Group을 복사 (Click Group)
+   1. right 0 left 45
+7. Click Group > Image
+   1. Icon 7
+8. Click Group > Text
+   1. 라벨 젤리 꾹꾹이
+9. Click Group > Sub Text
+   1. 라벨 클릭 생산량 x 1
+
+#### 데이터 만들기
+
+1. Saved급의 변수 만들기
+   1. NumLevel (int 1)
+   2. ClickLevel(int 1)
+2. GameManager.cs 내에 배열 변수 선언
+   ```cs
+       public int[] numGoldList; // 아파트 구매 골드비용
+       public int[] clickGoldList; // 클릭 효율 구매 골드비용
+   ```
+3. 값을 넣어준 후 regenrate nodes
+
+#### 데이터 연동
+
+1. PlantPanel 객체에 script machine 추가 (PlantPanel.asset)
+2. JellyPanel 내에 Check Gold 그룹을 복사해와서 붙여넣기
+3. PlantPanel > Num Group > Button에 있는 Onclick을 적절히 교체
+   1. 객체 PlantPanel
+   2. 함수 ScriptMachine.TriggerUnityEvent
+   3. String Num
+4. Click Group > Button에도 유사하게 적용
+   1. 똑같이 만든후
+   2. String 만 Click으로 변경
+5. 가격을 가저오는곳에서 list가
+   1. get NumGoldList이다.(replace 필요)
+6. Page가 아닌 NumLevel로 변경
+   1. ![[Pasted image 20240801223405.png]]
+   2. ![[Pasted image 20240801222457.png]]
+7. Num Group > sub text에 embed된 script machine 추가
+   1. ![[Pasted image 20240801221708.png]]
+8. Num Group > Button > Text 에도 embed 된 script machine 추가
+   1. 기존의 버튼을 복사해 왔기에 어느정도 값이 잇는데 부분변경을해준다.
+   2. Panel이 Plant Panel 이여야하고
+   3. Page 대신에 NumLevel
+   4. list는 NumGoldList여야 한다.
+   5. ![[Pasted image 20240801223541.png]]
+9. 테스트
+   1. numLevel이 최고 상태일때 예외 처리 필요
+   2. Num gold list 와 click gold list 의 6번째 인덱스를 추가하고 0으로 값을 넣어준다.
+10. Num group > Button 에 embed인 script machine 추가
+    1. ![[Pasted image 20240801224536.png]]
+11. click group > sub Text
+12. ![[Pasted image 20240802075712.png]]
+13. click group > button 에도비슷한 embed script machine을 추가한다.
+    1. ![[Pasted image 20240801224707.png]]
+14. click group > button > Text
+    1. ![[Pasted image 20240802090430.png]]
+15. Plant Panel의 script machine 내로 와서
+    1. 위에 로직과 흡사하므로 복붙으로 빠르게 만들수있지만 유니티 낭비이므로
+    2. 올바른방법으로 만든다.
+16. Plant Panel
+    1. select on flow 사용
+    2. select on string 사용
+    3. flow 변수에 값저장
+    4. 어떤 타입의 업그레이드인지
+       1. type이라는 이름을 flow급에 저장
+       2. ![[Pasted image 20240802082223.png]]
+    5. type에 따라서 올바른 리스트를 조회해오고 조건검사
+       1. ![[Pasted image 20240802081743.png]]
+    6. 증가 반영
+       1. ![[Pasted image 20240802081822.png]]
+    7. UI갱신을 위한 broadcasting
+       1. ![[Pasted image 20240802081837.png]]
+17. 테스트 전 준비
+    1. saved 값 gold를 충분히 높게
+    2. NumLevel과 ClickLevel은 1로 시작
+18. 테스트
+    1. 정상
+
+#### 로직 구현
+
+UI는 바뀌지만
+내부 로직은 적용되지 않은 상태 (유닛 수량 제한 로직 추가 필요)
+
+1. Jelly Panel script graph에서
+2. Collection > count item 유닛이 있음
+3. 젤리 수의 제한과 현재 젤리 수를 비교후 구매가능하도록
+4. Buy:CheckGold와 Buy : Success 사이에 Buy : Check Num Level을 추가한다.
+   1. ![[Pasted image 20240802085319.png]]
+   2. ![[Pasted image 20240802085327.png]]
+   3. ![[Pasted image 20240802085337.png]]
+5. 테스트
+   1. 구현한 곳까지 정상작동하지만
+   2. _UX가 부족하다 (추가 구매가 불가능한 이유를 유저가 알 수 없음)_
+      1. 추후 수정
+6. 두번째 업그레이드 ClickLevel에 따른 효율적인 farming이 되도록 로직 추가 구현
+   1. GetJelatin으로 이동
+   2. 중간에 multiple을 한번더해서 clickLevel을 반영해준다.
+   3. ![[Pasted image 20240802090102.png]]
+   4. ![[Pasted image 20240802090112.png]]
+7. 테스트
+   1. 정상
+
 ###
