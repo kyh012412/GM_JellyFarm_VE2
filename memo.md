@@ -1214,4 +1214,163 @@ UI는 바뀌지만
 7. 테스트
    1. 정상
 
+### 젤리 키우기 게임 - ⚙️사운드와 옵션 시스템 [V16]
+
+#### 사운드 매니저
+
+1. 빈 객체를 만들어준다.(SoundManager)
+   1. 초기화
+2. SoundManager내부에 빈객체를 더 만들어준다.(Bgm Player) 3. 오디오 소스 컴포넌트추가 4. bgm을 clip에 넣어준다. 5. Play on awake 켜주고 6. Loop를 체크 해준다.
+3. Bgm Player를 복사해준다.(Sfx Player)
+   1. clip 제거
+   2. Play on awake를 꺼준다.
+   3. Loop를 체크해주 해준다.
+4. SoundManager의 script machine 내에 Object급으로 두개의 플레이어를 추가해준다.
+   1. 이름은 BgmPaleyr / SfxPlayer
+   2. 자료형 AudioSource
+   3. 드래그 드랍으로 넣어주기
+5. SoundManager의 script machine으로 가서
+   1. 컴스텀 이벤트 사용
+      1. 매개변수 1개
+   2. 이후 받아서 switch 처럼 처리하기 위하여
+      1. select on string 사용
+         1. select같은경우는 default가 비면안됨
+      2. inspector에서 10가지 케이스를 처리할수잇게 추가
+   3. clip이 있는 경로까지 Asset 에서 접근해서 script machine 내로 드래그 드랍해준다.(연결)
+   4. ![[Pasted image 20240802110928.png]]
+6. 사운드 매니져도 게임 매니저처럼 Scene급 변수에 저장하고 사용할 예정
+   1. Sound / game object /당겨서 놓기
+
+#### 사운드 적용
+
+1. 여러번 사용해야하기 때문에 슈퍼유닛으로 다루기
+2. 슈퍼 유닛 생성(PlaySound)
+   1. input output 만들어주기
+   2. input 쪽에 Name 이라는 이름으로 string을 추가해주고
+      1. has Default value를 체크해주면 더 편하게 사용이 가능하다.
+   3. ![[Pasted image 20240802104143.png]]
+3. 이제 곳곳에 이 슈퍼유닛을 적용
+   1. Jelly > Touch state > GetJelatin 이후
+      1. ![[Pasted image 20240802104535.png]]
+   2. set Exp 슈퍼유닛 내에서 ChangeAc 이후
+      1. ![[Pasted image 20240802104738.png]]
+   3. GameManger의 Add jelly 그룹 끝 과 Remove Jelly 그룹 끝
+      1. ![[Pasted image 20240802104958.png]]
+      2. ![[Pasted image 20240802105003.png]]
+   4. Jelly Panel에서 unlock Success에서 broadcasting 전에
+      1. ![[Pasted image 20240802105242.png]]
+   5. unlock Success로 넘어가기전의 if문의 false쪽에서
+      1. ![[Pasted image 20240802105338.png]]
+   6. 밑에 있는 buy : check gold 에서도 동일
+   7. Plant Panel에서도 Buy : Check Gold 그룹의 if문 false쪽에서 도 동일
+   8. 우측의 broadcasting전에 unlock sound play
+      1. ![[Pasted image 20240802105732.png]]
+   9. Button Panel에 Change State 이후에 Button play
+      1. ![[Pasted image 20240802105954.png]]
+   10. ButtonOption내에서
+       1. ![[Pasted image 20240802110206.png]]
+   11. JellyPanel에 Page Change 할때 Button 사운드 추가
+       1. Set Page 후 broadcasting 전
+   12. ![[Pasted image 20240802110357.png]]
+
+#### 옵션 UI 구축
+
+1. Option Panel을 열어보면 기존의 Panel이라는 이미지만 있다.
+2. Panel 이하에 빈객체 추가(Sfx Group)
+   1. 앵커 위쪽에 꽉 차게
+   2. left 2 right 2 pos y -5 hieght 5
+3. Sfx Group 내에 Text 추가(UI Text)
+   1. 앵커 좌측에 붙여주기
+   2. left 1
+   3. 가로 세로 0 0
+   4. overflow overflow
+   5. 좌측정렬, 중앙정렬
+   6. 도현체
+   7. 라벨 효과음
+4. Sfx Group 내에 slider 추가(Sfx Slider)
+   1. 앵커 전체크기
+   2. left 21 right 5
+   3. Normal color 색상 0BCFC4
+   4. HighLight 색상 48eae1
+   5. Pressed 색상 00a5a9
+   6. selected 색상 00a5a9
+   7. value 0.5
+5. Sfx Slider > fillArea
+   1. 앵커 전체크기
+   2. value 새로고침
+6. Sfx Slider > fillArea > Fill 이라는 객체
+   1. 색상 0BCFC4
+   2. 소스 이미지 Panel
+   3. Image Type > simple
+   4. set native size
+   5. Image Type > sliced
+   6. 앵커 전체크기
+7. Sfx Slider > background
+   1. 소스 이미지 Panel
+   2. Image Type > simple
+   3. set native size
+   4. Image Type > sliced
+   5. 앵커 전체크기
+8. Sfx Slider > Handle slide Area > Handle
+   1. 소스 이미지 Panel 2.
+   2. Image Type > simple
+   3. set native size
+   4. Image Type > sliced
+   5. 앵커 상하만 가득차게
+   6. pos x -5 가로 10
+   7. top -2 bottom -2
+9. Sfx Slider > Handle slide Area
+   1. left 5 right -5
+10. Sfx Group 복사 (Bgm Group)
+    1. pos y -15
+    2. 배경음
+11. Panel에 버튼하나 추가(Resume Button)
+    1. 앵커 아래쪽에 꽉 차게
+    2. 이미지 소스 panel
+    3. left 3 right 41 pos y 3 height 12
+12. Resume Button > Text
+    1. 앵커 중앙
+    2. 폭과 높이는 0
+    3. overflow,overflow
+    4. 도현체
+    5. 폰트 크기 6
+13. Resume Button 복사 (Exit Button)
+    1. left 41 right 3
+    2. Normal color FF6969
+    3. Highlighted ff9e9e
+    4. Pressed d93737
+    5. Selected d93737
+14. Exit Button > Text
+    1. 라벨 나가기
+    2. 색상 fffff
+
+#### 로직 구현
+
+1. Saved 급의 변수를 만들어준다.
+   1. Sfx float 0.5
+   2. Bgm float 0.5
+2. sfx slider에 embed script machine 추가
+   1. ![[Pasted image 20240802123241.png]]
+3. bgm Slider에도 비슷하게 만들어주기
+   1. ![[Pasted image 20240802123426.png]]
+4. SoundManager에서
+   1. ![[Pasted image 20240802123814.png]]
+5. ButtonOption에서 Hide라는 유니티 이벤트가 발생하면 창 숨기도록 연결
+   1. ![[Pasted image 20240802132632.png]]
+6. Option Panel에서 Resume Button의 OnClick에 메서드추가
+   1. 객체 Option Button
+   2. scriptmachine.triggerUnityevent
+   3. string Hide
+7. Option Panel에서 Exit Button에는 별도의 embed script machine 추가
+   1. Timer 유닛내의
+      1. Unscaled: Time Scale에 영향을 받지 않도록 해주는 옵션
+   2. ![[Pasted image 20240802140400.png]]
+8. Option Panel 비활성화
+9. 테스트
+   1. 정상
+   2. 변형
+      1. sfx slider / bgm slider > Handle slide Area
+         1. left 5 right 5
+         2. handle pos x 0
+
 ###
