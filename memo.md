@@ -1373,4 +1373,115 @@ UI는 바뀌지만
          1. left 5 right 5
          2. handle pos x 0
 
+### 젤리 키우기 게임 - 모바일 빌드 [VE2]
+
+#### 알림 메세지
+
+플레이어 목표를 제시하는 알림
+
+1. Canvas 내에서 Image 추가(CenterText)
+   1. 앵커 위쪽
+   2. 가로 80 세로 8
+   3. pos y 20 (안보이게 하기위하여)
+   4. 소스 이미지 판넬
+2. CenterText내에 Text 추가
+   1. 가로세로 0
+   2. pos y 0.3
+   3. 도현체
+   4. 폰트 크기 4
+   5. 중앙정렬,중앙정렬
+   6. OverflowOverflow
+   7. 라벨 알림 메세지
+3. 하이라키에 새로운 빈객체 추가(NoticeManager)
+   1. 위치 0
+   2. script machine 추가(NoticeManager)
+4. NoticeManager script machine
+   1. custom event 유닛으로 시작
+      1. Msg
+      2. 매개변수 1개
+   2. select on string
+   3. Object 급에 변수추가
+      1. IsNegative boolean tf
+      2. NoticeText string
+   4. 알림 UI들을 위해 커스텀 이벤트 발송
+   5. ![[Pasted image 20240804165610.png]]
+5. Center Text에 script machine 추가 embed script machine까지 추가
+   1. custom event 유닛부터 시작
+   2. rect transform : set anchored position
+   3. ![[Pasted image 20240804213333.png]]
+   4. ![[Pasted image 20240804213344.png]]
+6. Center Text > Text에 embed script machine 추가
+   1. 위의 get Event 부분을 복사해서 가져와주고 일부를 수정하여 다음처럼 구성
+   2. ![[Pasted image 20240805180104.png]]
+   3. 만약에 노란색 경고가 발생한다면
+      1. NoticeManager에 Object급으로 NoticeText (string / 알림메세지)를 추가해준다.
+7. PlaySound 슈퍼유닛을 복사 (ctrl + d)(PlayNotice)
+8. Scene급 변수로 Notice라는 이름의 변수를 만들어주고
+   1. (game Object / NoticeManager)를 넣어준다.
+9. PlayNotice 슈퍼유닛을 다음과 같이 구성
+   1. ![[Pasted image 20240805181614.png]]
+10. GameManager graph로 돌아가서
+    1. Set Start 그룹 끝에 Play Notice 슈퍼유닛을 넣어주기
+    2. ![[Pasted image 20240805183034.png]]
+11. ButtonSell에 macro에서
+    1. Event > GUI > On Button Click 유닛 추가
+       1. PlaySound와 PlayNotice를 연결
+    2. ![[Pasted image 20240805183317.png]]
+12. JellyPanel graph로 가서
+    1. Unlock을 구현로직중 Jelatin이 부족할때 소리재생하는 곳 이후에 유닛추가
+       1. ![[Pasted image 20240805183529.png]]
+    2. Buy Check Gold 그룹 뒷부분도 동일
+       1. ![[Pasted image 20240805183733.png]]
+    3. (우측) Num check 이후에도 동일
+       1. ![[Pasted image 20240805183917.png]]
+13. PlantPanel graph로 이동
+    1. 조건부 검사에서 fail일경우 소리 나는곳 이후에 유닛추가
+       1. ![[Pasted image 20240805190926.png]]
+
+#### 게임 클리어
+
+1. 캔버스내에 이미지 추가(Clear)
+   1. 소스 이미지 medal
+   2. set native size
+   3. 앵커 우상단
+   4. pos y -12 x -1
+   5. 비활성화
+2. Saved급에 IsClear 라는 변수 추가 boolean false
+3. GameManager에 Object급으로 Clear 변수 추가 (GameObject) (Clear) 넣어주기
+   1. Set Start 그룹 이후에 추가
+      1. ![[Pasted image 20240805215140.png]]
+4. JellyPanel로 이동, Unlock : Success 그룹에서
+   1. _Saved내에 JellyUnlockList가 모두 false인지 확인하는 로직?_
+   2. _Collections > Lists > List Contains Item 이라는 유닛 사용_
+      1. List Contains Item : 리스트에 데이터가 포함 되어있는지 판단
+   3. ![[Pasted image 20240805214130.png]]
+   4. ![[Pasted image 20240805215234.png]]
+5. 모든 로직 완성
+6. 테스트
+   1. 젤라틴 5백만으로 시작
+   2. 모두 해금했을때 알림
+   3. 이후 재시작했을때 동일한 알림필요
+
+#### 모바일 빌드
+
+1. file > save project 먼저 해주고
+2. Scene을 추가해주고
+3. 빌드할 플랫폼으로 옴겨주고
+   1. 에러발생...
+4. Player Settings
+
+### Player 탭에서
+
+1. Company Name 2. ScullystoryStudio
+2. Product Name 설정
+3. Default Icon 설정
+4. Resolution and Presentation
+   1. 가로 방향 세로방향 잘 정하고
+5. Other Settings
+   1. _Configuration > Scripting Backend_ 의 값을 *IL2CPP*로 변경
+   2. _Target Architectures_
+      1. *ARM64*의 값도 체크
+6. Active Input Handling 필요시 input을 both로 변경
+7. 21버전이상이라서 aot pre build는 필요없음
+
 ###
